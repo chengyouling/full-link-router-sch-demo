@@ -1,2 +1,41 @@
 server:
   port: 8092
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+
+  rabbitmq:
+    addresses: 127.0.0.1:5672
+    username: admin
+    password: admin
+    publisher-returns: true
+    listener:
+      type: simple
+      simple:
+        acknowledge-mode: auto
+        concurrency: 3
+        prefetch: 1
+        max-concurrency: 3
+        retry:
+          max-attempts: 5
+          enabled: true
+          initial-interval: 3000
+
+
+mybatis:
+  mapper-locations: classpath:mapping/*mapper.xml
+  type-aliases-package: com.huaweicloud.servicestage.demo.entity
+
+logging:
+  level:
+    com:
+      huaweicloud:
+        servicestage:
+          demo:
+            mapper:
+              UserMapper: debug
+

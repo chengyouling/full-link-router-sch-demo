@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.StringUtils;
@@ -50,6 +51,20 @@ public class ConsumerController {
         }
         msg.put("ip", inetUtils.findFirstNonLoopbackHostInfo().getIpAddress());
         Map<String, Object> map = new HashMap<>(restTemplate.getForObject(PROVIDER_URL, Map.class));
+        map.put(name, msg);
+        return map;
+    }
+
+    @GetMapping("unit-consumer/queryUserInfo")
+    public Map<String, Object> queryUserInfo(@RequestParam("id") String id) {
+        Map<String, String> msg = new HashMap<>();
+        msg.put("SERVICECOMB_INSTANCE_PROPS", props);
+        if (StringUtils.hasText(availableZone)) {
+            msg.put("AVAILABLE_ZONE", availableZone);
+        }
+        msg.put("ip", inetUtils.findFirstNonLoopbackHostInfo().getIpAddress());
+        Map<String, Object> map = new HashMap<>(
+            restTemplate.getForObject("http://unit-provider/unit-provider/queryUserInfo?id={1}", Map.class, id));
         map.put(name, msg);
         return map;
     }

@@ -4,11 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.huaweicloud.servicestage.demo.entity.UserInfo;
+import com.huaweicloud.servicestage.demo.message.RabbitMqProducer;
+import com.huaweicloud.servicestage.demo.service.UserService;
 
 /**
  * controller
@@ -30,6 +35,12 @@ public class ProviderController {
     @Autowired
     private InetUtils inetUtils;
 
+    @Autowired
+    private UserService service;
+
+    @Autowired
+    private RabbitMqProducer producer;
+
     /**
      * 测试方法
      *
@@ -46,5 +57,29 @@ public class ProviderController {
         Map<String, Object> map = new HashMap<>();
         map.put(name, msg);
         return map;
+    }
+
+    @GetMapping("unit-provider/queryUserInfo")
+    public Map<String, Object> queryUserInfo(@RequestParam("id") String id) {
+        Map<String, String> msg = new HashMap<>();
+        msg.put("SERVICECOMB_INSTANCE_PROPS", props);
+        if (StringUtils.hasText(availableZone)) {
+            msg.put("AVAILABLE_ZONE", availableZone);
+        }
+        msg.put("ip", inetUtils.findFirstNonLoopbackHostInfo().getIpAddress());
+        Map<String, Object> map = new HashMap<>();
+        map.put(name, msg);
+        map.put("userInfo", queryUserInfo(Integer.parseInt(id)));
+        return map;
+    }
+
+    @GetMapping("unit-provider/produceMessage")
+    public void produceMessage() {
+        producer.sendMessage();
+    }
+
+    public String queryUserInfo(int id) {
+        UserInfo userInfo = service.queryUserInfoById(id);
+        return userInfo == null ? "" : userInfo.toString();
     }
 }

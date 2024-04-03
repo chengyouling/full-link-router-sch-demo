@@ -1,2 +1,20 @@
 server:
   port: 8091
+
+spring:
+  rabbitmq:
+    addresses: 127.0.0.1:5672
+    username: admin
+    password: admin
+    publisher-returns: true
+    listener:
+      type: simple
+      simple:
+        acknowledge-mode: auto
+        concurrency: 3
+        prefetch: 1
+        max-concurrency: 3
+        retry:
+          max-attempts: 5
+          enabled: true
+          initial-interval: 3000

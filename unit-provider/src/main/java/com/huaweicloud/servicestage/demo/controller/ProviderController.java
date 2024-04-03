@@ -1,5 +1,7 @@
 package com.huaweicloud.servicestage.demo.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -23,6 +25,8 @@ import com.huaweicloud.servicestage.demo.service.UserService;
  */
 @RestController
 public class ProviderController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProviderController.class);
+
     @Value("${spring.application.name}")
     private String name;
 
@@ -79,7 +83,12 @@ public class ProviderController {
     }
 
     public String queryUserInfo(int id) {
-        UserInfo userInfo = service.queryUserInfoById(id);
+        UserInfo userInfo = null;
+        try {
+            userInfo = service.queryUserInfoById(id);
+        } catch (Exception e) {
+            LOGGER.error("queryUserInfoById failed!", e);
+        }
         return userInfo == null ? "" : userInfo.toString();
     }
 }
